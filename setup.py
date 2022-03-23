@@ -3,20 +3,22 @@ from setuptools import setup, find_packages
 from setuptools.extension import Extension
 from Cython.Build import cythonize
 
+import os
+
+gptl_dir = os.environ.get("GPTL_DIR")
+gptl_include_dir = os.path.join(gptl_dir, "include")
+gptl_lib_dir = os.path.join(gptl_dir, "lib")
+
 extensions = [
     Extension(
         "gptl4py",
         ["gptl4py.pyx"],
-        include_dirs=['/Users/jyc/sw/camtimers/devel/gcc/include'], 
-        libraries=['timers'],
-        library_dirs=['/Users/jyc/sw/camtimers/devel/gcc/lib'],
-        extra_compile_args = ['-DHAVE_MPI'],
-        extra_link_args = ['-fopenmp'],
+        include_dirs=[gptl_include_dir],
+        libraries=["timers"],
+        library_dirs=[gptl_lib_dir],
+        extra_compile_args=["-DHAVE_MPI"],
+        extra_link_args=["-fopenmp"],
     ),
 ]
 
-setup(
-    name = "gptl4py",
-    packages = find_packages(),
-    ext_modules = cythonize(extensions)
-)
+setup(name="gptl4py", packages=find_packages(), ext_modules=cythonize(extensions))
