@@ -14,7 +14,7 @@ extensions = [
         "gptl4py",
         ["gptl4py.pyx"],
         include_dirs=[gptl_include_dir],
-        libraries=["timers"],
+        libraries=["gptl"],
         library_dirs=[gptl_lib_dir],
         extra_compile_args=["-DHAVE_MPI"],
         extra_link_args=["-fopenmp"],

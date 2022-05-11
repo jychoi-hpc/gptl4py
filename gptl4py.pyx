@@ -1,4 +1,7 @@
 # cython: language_level=3
+from __future__ import absolute_import
+from functools import wraps
+from contextlib import contextmanager
 
 import mpi4py.MPI as MPI
 cimport mpi4py.MPI as MPI
@@ -68,3 +71,25 @@ cpdef pr_summary_file(str name, MPI.Comm comm = MPI.COMM_WORLD):
 
 def hello_world():
     print("hello world")
+
+def profile(x_or_func=None, *decorator_args, **decorator_kws):
+    def _decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kws):
+            if 'x_or_func' not in locals() or callable(x_or_func) or x_or_func is None:
+                x = func.__name__
+            else:
+                x = x_or_func
+            start(x)
+            out = func(*args, **kws)
+            stop(x)
+            return out
+        return wrapper
+
+    return _decorator(x_or_func) if callable(x_or_func) else _decorator
+
+@contextmanager
+def timer(x):
+    start(x)
+    yield
+    stop(x)
