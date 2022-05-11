@@ -17,7 +17,7 @@ extensions = [
         libraries=["gptl"],
         library_dirs=[gptl_lib_dir],
         extra_compile_args=["-DHAVE_MPI"],
-        extra_link_args=["-fopenmp"],
+        extra_link_args=["-fopenmp","-Wl,-rpath=%s"%gptl_lib_dir],
     ),
 ]
 
