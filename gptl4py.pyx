@@ -14,12 +14,21 @@ cdef extern from "gptl.h":
     ctypedef struct MPI_Comm:
         pass
 
-    cdef void GPTLinitialize ();
+    ctypedef enum GPTLoption:
+        GPTL_IPC
+        PAPI_TOT_INS
+
+    cdef int GPTLsetoption (const int, const int);
+    cdef int GPTLinitialize ();
     cdef int GPTLfinalize ();
     cdef int GPTLstart (const char *);
     cdef int GPTLstop (const char *);
     cdef int GPTLpr (const int);
     cdef int GPTLpr_file (const char *);
+    cdef int GPTLreset ();
+    cdef int GPTLreset_timer (const char *);
+
+cdef extern from "gptlmpi.h":
     cdef int GPTLpr_summary (MPI_Comm comm);
     cdef int GPTLpr_summary_file (MPI_Comm, const char *);
 
@@ -45,29 +54,40 @@ cpdef bytes s2b(str x):
     else:
         return strdup(x.encode())
 
-cpdef initialize():
-    GPTLinitialize()
+cpdef int setoption(int option, int val):
+    return GPTLsetoption(option, val)
 
-cpdef finalize():
-    GPTLfinalize()
+cpdef int initialize():
+    #ret = GPTLsetoption (GPTL_IPC, 1)
+    #ret = GPTLsetoption (PAPI_TOT_INS, 1)
+    return GPTLinitialize()
 
-cpdef pr(int):
-    GPTLpr(int)
+cpdef int finalize():
+    return GPTLfinalize()
 
-cpdef pr_file(str name):
-    GPTLpr_file(s2b(name))
+cpdef int pr(int):
+    return GPTLpr(int)
 
-cpdef start(str name):
-    GPTLstart(s2b(name))
+cpdef int pr_file(str name):
+    return GPTLpr_file(s2b(name))
 
-cpdef stop(str name):
-    GPTLstop(s2b(name))
+cpdef int start(str name):
+    return GPTLstart(s2b(name))
 
-cpdef pr_summary(MPI.Comm comm = MPI.COMM_WORLD):
-    GPTLpr_summary(comm.ob_mpi)
+cpdef int stop(str name):
+    return GPTLstop(s2b(name))
 
-cpdef pr_summary_file(str name, MPI.Comm comm = MPI.COMM_WORLD):
-    GPTLpr_summary_file(comm.ob_mpi, s2b(name))
+cpdef int reset():
+    return GPTLreset()
+
+cpdef int reset_timer(str name):
+    return GPTLreset_timer(s2b(name))
+
+cpdef int pr_summary(MPI.Comm comm = MPI.COMM_WORLD):
+    return GPTLpr_summary(comm.ob_mpi)
+
+cpdef int pr_summary_file(str name, MPI.Comm comm = MPI.COMM_WORLD):
+    return GPTLpr_summary_file(comm.ob_mpi, s2b(name))
 
 def hello_world():
     print("hello world")
