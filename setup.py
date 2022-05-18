@@ -17,11 +17,11 @@ extensions = [
     Extension(
         "gptl4py",
         ["gptl4py.pyx"],
-        include_dirs=[gptl_include_dir,papi_include_dir],
-        libraries=["gptl","papi"],
-        library_dirs=[gptl_lib_dir,papi_lib_dir],
+        include_dirs=[gptl_include_dir, papi_include_dir],
+        libraries=["gptl", "papi"],
+        library_dirs=[gptl_lib_dir, papi_lib_dir],
         extra_compile_args=["-DHAVE_MPI"],
-        extra_link_args=["-fopenmp","-Wl,-rpath=%s"%gptl_lib_dir],
+        extra_link_args=["-fopenmp", "-Wl,-rpath=%s" % gptl_lib_dir],
     ),
 ]
 

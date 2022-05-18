@@ -16,7 +16,6 @@ cdef extern from "gptl.h":
 
     ctypedef enum GPTLoption:
         GPTL_IPC
-        PAPI_TOT_INS
 
     cdef int GPTLsetoption (const int, const int);
     cdef int GPTLinitialize ();
@@ -27,6 +26,8 @@ cdef extern from "gptl.h":
     cdef int GPTLpr_file (const char *);
     cdef int GPTLreset ();
     cdef int GPTLreset_timer (const char *);
+    cdef int GPTLenable ();
+    cdef int GPTLdisable ();
 
 cdef extern from "gptlmpi.h":
     cdef int GPTLpr_summary (MPI_Comm comm);
@@ -92,6 +93,12 @@ cpdef int pr_summary(MPI.Comm comm = MPI.COMM_WORLD):
 
 cpdef int pr_summary_file(str name, MPI.Comm comm = MPI.COMM_WORLD):
     return GPTLpr_summary_file(comm.ob_mpi, s2b(name))
+
+cpdef int enable():
+    return GPTLenable()
+
+cpdef int disable():
+    return GPTLdisable()
 
 def hello_world():
     print("hello world")
