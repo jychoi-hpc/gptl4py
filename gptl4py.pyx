@@ -32,6 +32,10 @@ cdef extern from "gptlmpi.h":
     cdef int GPTLpr_summary (MPI_Comm comm);
     cdef int GPTLpr_summary_file (MPI_Comm, const char *);
 
+cdef extern from "papi.h":
+    ctypedef enum:
+        PAPI_TOT_INS
+
 from cpython.version cimport PY_MAJOR_VERSION
 
 cdef extern from "string.h" nogil:
@@ -58,8 +62,8 @@ cpdef int setoption(int option, int val):
     return GPTLsetoption(option, val)
 
 cpdef int initialize():
-    #ret = GPTLsetoption (GPTL_IPC, 1)
-    #ret = GPTLsetoption (PAPI_TOT_INS, 1)
+    ret = GPTLsetoption (GPTL_IPC, 1)
+    ret = GPTLsetoption (PAPI_TOT_INS, 1)
     return GPTLinitialize()
 
 cpdef int finalize():
