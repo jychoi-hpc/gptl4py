@@ -7,6 +7,7 @@ rank = comm.Get_rank()
 
 gp.hello_world()
 
+gp.setoption("GPTLmultiplex")
 gp.setoption("PAPI_TOT_INS")
 #gp.setoption("example:::EXAMPLE_CONSTANT")
 #gp.setoption("nvml:::Tesla_V100-SXM2-16GB:device_0:gpu_utilization")

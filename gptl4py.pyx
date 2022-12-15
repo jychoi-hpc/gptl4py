@@ -15,8 +15,18 @@ cdef extern from "gptl.h":
         pass
 
     ctypedef enum GPTLoption:
-        GPTL_IPC
-
+        GPTLsync_mpi,
+        GPTLwall,
+        GPTLcpu,
+        GPTLabort_on_error,
+        GPTLoverhead,
+        GPTLdepthlimit,
+        GPTLverbose,
+        GPTLnarrowprint,
+        GPTLpercent,
+        GPTLpersec,
+        GPTLmultiplex
+        
     cdef int GPTLsetoption (const int, const int)
     cdef int GPTLinitialize ()
     cdef int GPTLfinalize ()
@@ -56,11 +66,14 @@ cpdef bytes s2b(str x):
     else:
         return strdup(x.encode())
 
-cpdef int setoption(str option):
+cpdef int setoption(str option, int val=1):
     cdef int opt
     cdef int ret
-    ret = GPTLevent_name_to_code(s2b(option), &opt)
-    return GPTLsetoption(opt, 1)
+    if option == "GPTLmultiplex":
+        opt = GPTLmultiplex
+    else:
+        ret = GPTLevent_name_to_code(s2b(option), &opt)
+    return GPTLsetoption(opt, val)
 
 cpdef int initialize():
     # ret = GPTLsetoption (GPTL_IPC, 1)
