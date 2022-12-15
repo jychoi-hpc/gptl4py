@@ -17,26 +17,33 @@ cdef extern from "gptl.h":
     ctypedef enum GPTLoption:
         GPTL_IPC
 
-    cdef int GPTLsetoption (const int, const int);
-    cdef int GPTLinitialize ();
-    cdef int GPTLfinalize ();
-    cdef int GPTLstart (const char *);
-    cdef int GPTLstop (const char *);
-    cdef int GPTLpr (const int);
-    cdef int GPTLpr_file (const char *);
-    cdef int GPTLreset ();
-    cdef int GPTLreset_timer (const char *);
-    cdef int GPTLenable ();
-    cdef int GPTLdisable ();
+    cdef int GPTLsetoption (const int, const int)
+    cdef int GPTLinitialize ()
+    cdef int GPTLfinalize ()
+    cdef int GPTLstart (const char *)
+    cdef int GPTLstop (const char *)
+    cdef int GPTLpr (const int)
+    cdef int GPTLpr_file (const char *)
+    cdef int GPTLreset ()
+    cdef int GPTLreset_timer (const char *)
+    cdef int GPTLenable ()
+    cdef int GPTLdisable ()
 
 cdef extern from "gptlmpi.h":
-    cdef int GPTLpr_summary (MPI_Comm comm);
-    cdef int GPTLpr_summary_file (MPI_Comm, const char *);
+    cdef int GPTLpr_summary (MPI_Comm comm)
+    cdef int GPTLpr_summary_file (MPI_Comm, const char *)
 
 IF USE_PAPI:
     cdef extern from "papi.h":
+        cdef int PAPI_event_name_to_code(const char *, int *)
         ctypedef enum:
             PAPI_TOT_INS
+
+    cpdef int setpapioption(str option, int val):
+        cdef int code
+        cdef int ret
+        ret = PAPI_event_name_to_code(s2b(option), &code)
+        return GPTLsetoption(code, val)
 
 from cpython.version cimport PY_MAJOR_VERSION
 
@@ -64,7 +71,7 @@ cpdef int setoption(int option, int val):
     return GPTLsetoption(option, val)
 
 cpdef int initialize():
-    ret = GPTLsetoption (GPTL_IPC, 1)
+    # ret = GPTLsetoption (GPTL_IPC, 1)
     # ret = GPTLsetoption (PAPI_TOT_INS, 1)
     return GPTLinitialize()
 
@@ -125,3 +132,4 @@ def timer(x):
     start(x)
     yield
     stop(x)
+
