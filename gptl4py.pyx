@@ -69,7 +69,13 @@ cpdef bytes s2b(str x):
 cpdef int setoption(str option, int val=1):
     cdef int opt
     cdef int ret
-    if option == "GPTLmultiplex":
+    if option == "GPTLverbose":
+        opt = GPTLverbose
+    elif option == "GPTLpercent":
+        opt = GPTLpercent
+    elif option == "GPTLpersec":
+        opt = GPTLpersec
+    elif option == "GPTLmultiplex":
         opt = GPTLmultiplex
     else:
         ret = GPTLevent_name_to_code(s2b(option), &opt)
