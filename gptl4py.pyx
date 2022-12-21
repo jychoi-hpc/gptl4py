@@ -38,6 +38,8 @@ cdef extern from "gptl.h":
     cdef int GPTLreset_timer (const char *)
     cdef int GPTLenable ()
     cdef int GPTLdisable ()
+
+IF USE_PAPI:
     cdef int GPTLevent_name_to_code(const char *, int *)
 
 cdef extern from "gptlmpi.h":
@@ -69,8 +71,23 @@ cpdef bytes s2b(str x):
 cpdef int setoption(str option, int val=1):
     cdef int opt
     cdef int ret
-    if option == "GPTLverbose":
+
+    if option == "GPTLsync_mpi":
+        opt = GPTLsync_mpi
+    elif option == "GPTLwall":
+        opt = GPTLwall
+    elif option == "GPTLcpu":
+        opt = GPTLcpu
+    elif option == "GPTLabort_on_error":
+        opt = GPTLabort_on_error
+    elif option == "GPTLoverhead":
+        opt = GPTLoverhead
+    elif option == "GPTLdepthlimit":
+        opt = GPTLdepthlimit
+    elif option == "GPTLverbose":
         opt = GPTLverbose
+    elif option == "GPTLnarrowprint":
+        opt = GPTLnarrowprint
     elif option == "GPTLpercent":
         opt = GPTLpercent
     elif option == "GPTLpersec":
@@ -78,7 +95,10 @@ cpdef int setoption(str option, int val=1):
     elif option == "GPTLmultiplex":
         opt = GPTLmultiplex
     else:
-        ret = GPTLevent_name_to_code(s2b(option), &opt)
+        IF USE_PAPI:
+            ret = GPTLevent_name_to_code(s2b(option), &opt)
+        ELSE:
+            pass
     return GPTLsetoption(opt, val)
 
 cpdef int initialize():
