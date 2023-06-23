@@ -14,10 +14,10 @@ gp.setoption("PAPI_TOT_INS")
 gp.initialize()
 
 for _ in range(10):
-    gp.start("foo")
+    gp.start("count")
     for i in range(1000):
         pass
-    gp.stop("foo")
+    gp.stop("count")
 
 gp.pr(0)
 gp.pr_summary()
