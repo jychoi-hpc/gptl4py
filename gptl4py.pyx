@@ -39,6 +39,7 @@ cdef extern from "gptl.h":
     cdef int GPTLenable ()
     cdef int GPTLdisable ()
     cdef int GPTLquery (const char *name, int t, int *count, int *onflg, double *wallclock, double *dusr, double *dsys, long long *papicounters_out, const int maxcounters)
+    cdef int GPTLget_wallclock_latest (const char *name, int t, double *value)
 
 IF USE_PAPI:
     cdef int GPTLevent_name_to_code(const char *, int *)
@@ -140,7 +141,7 @@ cpdef int enable():
 cpdef int disable():
     return GPTLdisable()
 
-def query(str name):
+def query_raw(str name):
     cdef int t = -1
     cdef int count
     cdef int onflg
@@ -151,6 +152,12 @@ def query(str name):
     cdef int maxcounters = 1
     GPTLquery (s2b(name), t, &count, &onflg, &wallclock, &dusr, &dsys, &papicounters_out, maxcounters)
     return (count, wallclock)
+
+def query(str name):
+    cdef int t = -1
+    cdef double value
+    GPTLget_wallclock_latest (s2b(name), t, &value)
+    return value
 
 def hello_world():
     print("hello world")
