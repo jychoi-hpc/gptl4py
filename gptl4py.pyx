@@ -38,6 +38,7 @@ cdef extern from "gptl.h":
     cdef int GPTLreset_timer (const char *)
     cdef int GPTLenable ()
     cdef int GPTLdisable ()
+    cdef int GPTLquery (const char *name, int t, int *count, int *onflg, double *wallclock, double *dusr, double *dsys, long long *papicounters_out, const int maxcounters)
 
 IF USE_PAPI:
     cdef int GPTLevent_name_to_code(const char *, int *)
@@ -138,6 +139,18 @@ cpdef int enable():
 
 cpdef int disable():
     return GPTLdisable()
+
+def query(str name):
+    cdef int t = -1
+    cdef int count
+    cdef int onflg
+    cdef double wallclock
+    cdef double dusr
+    cdef double dsys
+    cdef long long papicounters_out
+    cdef int maxcounters = 1
+    GPTLquery (s2b(name), t, &count, &onflg, &wallclock, &dusr, &dsys, &papicounters_out, maxcounters)
+    return (count, wallclock)
 
 def hello_world():
     print("hello world")
