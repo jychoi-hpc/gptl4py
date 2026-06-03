@@ -4,7 +4,7 @@ Python bindings for the [General Purpose Timing Library (GPTL)](https://jmrosins
 
 ## Overview
 
-gptl4py provides Python/Cython bindings for GPTL, a C library for profiling and timing code in HPC and MPI environments. It supports manual timer brackets, decorators, context managers, and optional PAPI hardware counter integration.
+GPTL4py provides Python/Cython bindings for GPTL, a C library for profiling and timing code in HPC and MPI environments. It supports manual timer brackets, decorators, context managers, and optional PAPI hardware counter integration.
 
 ## Requirements
 
