@@ -31,14 +31,19 @@ def bootstrap_gptl():
             tf.extractall(tmpdir)
 
         src_dir = os.path.join(tmpdir, f"gptl-{GPTL_VERSION}")
+        def run(args, **kwargs):
+            result = subprocess.run(args, cwd=src_dir, capture_output=True, text=True, **kwargs)
+            if result.returncode != 0:
+                raise RuntimeError(
+                    f"Command {args} failed (exit {result.returncode}):\n"
+                    f"STDOUT:\n{result.stdout}\nSTDERR:\n{result.stderr}"
+                )
+
         if not os.path.exists(os.path.join(src_dir, "configure")):
-            subprocess.run(["autoreconf", "-i"], cwd=src_dir, check=True)
-        subprocess.run(
-            ["./configure", f"--prefix={GPTL_INSTALL_DIR}", "--enable-static", "--disable-shared", "--with-pic", "--disable-fortran"],
-            cwd=src_dir, check=True,
-        )
-        subprocess.run(["make", "-j4"], cwd=src_dir, check=True)
-        subprocess.run(["make", "install"], cwd=src_dir, check=True)
+            run(["autoreconf", "-i"])
+        run(["./configure", f"--prefix={GPTL_INSTALL_DIR}", "--enable-static", "--disable-shared", "--with-pic", "--disable-fortran"])
+        run(["make", "-j4"])
+        run(["make", "install"])
 
     return GPTL_INSTALL_DIR
 
