@@ -1,5 +1,7 @@
 # cython: language_level=3
 from __future__ import absolute_import
+
+__version__ = "1.0.0"
 from functools import wraps
 from contextlib import contextmanager
 

@@ -1,32 +1,72 @@
-# from conf.mpidistutils import setup
 from setuptools import setup, find_packages
 from setuptools.extension import Extension
 from Cython.Build import cythonize
 
 import os
-import sys
+import subprocess
+import tarfile
+import urllib.request
 
-include_dirs = list()
-library_dirs = list()
-libraries = list()
-gptl_lib_dir = None
-if os.getenv("GPTL_DIR") is not None:
-    gptl_dir = os.environ.get("GPTL_DIR")
-    gptl_include_dir = os.path.join(gptl_dir, "include")
+GPTL_VERSION = "8.1.1"
+# Release asset tarball includes pre-generated configure; GitHub archive does not.
+GPTL_URL = f"https://github.com/jmrosinski/GPTL/releases/download/v{GPTL_VERSION}/gptl-{GPTL_VERSION}.tar.gz"
+_HERE = os.path.dirname(os.path.abspath(__file__))
+GPTL_INSTALL_DIR = os.path.join(_HERE, "_gptl_install")
+
+
+def bootstrap_gptl():
+    marker = os.path.join(GPTL_INSTALL_DIR, "include", "gptl.h")
+    if os.path.exists(marker):
+        print(f"Using cached GPTL build at {GPTL_INSTALL_DIR}")
+        return GPTL_INSTALL_DIR
+
+    import tempfile
+    print(f"GPTL_DIR not set — downloading GPTL v{GPTL_VERSION} and building statically...")
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tarball = os.path.join(tmpdir, "gptl.tar.gz")
+        urllib.request.urlretrieve(GPTL_URL, tarball)
+
+        with tarfile.open(tarball) as tf:
+            tf.extractall(tmpdir)
+
+        src_dir = os.path.join(tmpdir, f"gptl-{GPTL_VERSION}")
+        if not os.path.exists(os.path.join(src_dir, "configure")):
+            subprocess.run(["autoreconf", "-i"], cwd=src_dir, check=True)
+        subprocess.run(
+            ["./configure", f"--prefix={GPTL_INSTALL_DIR}", "--enable-static", "--disable-shared"],
+            cwd=src_dir, check=True,
+        )
+        subprocess.run(["make", "-j4"], cwd=src_dir, check=True)
+        subprocess.run(["make", "install"], cwd=src_dir, check=True)
+
+    return GPTL_INSTALL_DIR
+
+
+include_dirs = []
+library_dirs = []
+libraries = []
+extra_objects = []
+extra_link_args = ["-fopenmp"]
+
+if os.getenv("GPTL_DIR"):
+    gptl_dir = os.environ["GPTL_DIR"]
     gptl_lib_dir = os.path.join(gptl_dir, "lib")
-    include_dirs.append(gptl_include_dir)
+    include_dirs.append(os.path.join(gptl_dir, "include"))
     library_dirs.append(gptl_lib_dir)
     libraries.append("gptl")
+    extra_link_args.append(f"-Wl,-rpath,{gptl_lib_dir}")
 else:
-    raise Exception("GPTL_DIR env is not set.")
+    gptl_dir = bootstrap_gptl()
+    include_dirs.append(os.path.join(gptl_dir, "include"))
+    extra_objects.append(os.path.join(gptl_dir, "lib", "libgptl.a"))
 
 USE_PAPI = False
-if os.getenv("PAPI_DIR") is not None:
+if os.getenv("PAPI_DIR"):
     USE_PAPI = True
-    papi_dir = os.environ.get("PAPI_DIR")
-    papi_include_dir = os.path.join(papi_dir, "include")
+    papi_dir = os.environ["PAPI_DIR"]
     papi_lib_dir = os.path.join(papi_dir, "lib")
-    include_dirs.append(papi_include_dir)
+    include_dirs.append(os.path.join(papi_dir, "include"))
     library_dirs.append(papi_lib_dir)
     libraries.append("papi")
 
@@ -37,9 +77,10 @@ extensions = [
         include_dirs=include_dirs,
         library_dirs=library_dirs,
         libraries=libraries,
+        extra_objects=extra_objects,
         extra_compile_args=["-DHAVE_MPI"],
-        extra_link_args=["-fopenmp", "-Wl,-rpath,%s" % gptl_lib_dir],
+        extra_link_args=extra_link_args,
     ),
 ]
 
-setup(name="gptl4py", packages=find_packages(), ext_modules=cythonize(extensions, compile_time_env={"USE_PAPI": USE_PAPI}))
+setup(name="gptl4py", version="1.0.0", packages=find_packages(), ext_modules=cythonize(extensions, compile_time_env={"USE_PAPI": USE_PAPI}))
