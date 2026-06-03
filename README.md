@@ -109,6 +109,10 @@ gp.setoption("PAPI_TOT_INS")   # enable a PAPI hardware counter (requires PAPI)
 
 Available option strings: `GPTLsync_mpi`, `GPTLwall`, `GPTLcpu`, `GPTLabort_on_error`, `GPTLoverhead`, `GPTLdepthlimit`, `GPTLverbose`, `GPTLnarrowprint`, `GPTLpercent`, `GPTLpersec`, `GPTLmultiplex`, and any PAPI event name when built with PAPI support.
 
+## Projects Using GPTL4py
+
+- [HydraGNN](https://github.com/ORNL/HydraGNN) — multi-headed graph neural network for large-scale atomistic simulations at ORNL
+
 ## Examples
 
 See the [`example/`](example/) directory for a complete MPI example.
