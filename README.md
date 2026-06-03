@@ -11,16 +11,31 @@ GPTL4py provides Python/Cython bindings for GPTL, a C library for profiling and 
 - Python 3
 - Cython
 - mpi4py
-- GPTL (external C library)
+- GPTL (auto-downloaded if `GPTL_DIR` is not set)
 - PAPI (optional, for hardware counter support)
 
 ## Build and Install
 
+**From GitHub (includes bundled GPTL):**
+
 ```sh
-pip install .
+CC=mpicc pip install git+https://github.com/jychoi-hpc/gptl4py.git
 ```
 
-Set `GPTL_DIR` before installing (required), and optionally `PAPI_DIR` for hardware counter support:
+**From source:**
+
+```sh
+git clone https://github.com/jychoi-hpc/gptl4py.git
+cd gptl4py
+CC=mpicc pip install .
+```
+
+> **Note:** Set compiler variables appropriate for your system. For example:
+> - `CC=mpicc` on ALCF systems
+> - `CC=cc` on Cray systems
+> - `CFLAGS=-std=gnu99` on macOS
+
+If `GPTL_DIR` is not set, GPTL will be downloaded automatically from [https://github.com/jmrosinski/GPTL](https://github.com/jmrosinski/GPTL). To use an existing installation, set `GPTL_DIR` before installing, and optionally `PAPI_DIR` for hardware counter support:
 
 ```sh
 GPTL_DIR=/path/to/gptl CC=mpicc pip install .
@@ -97,6 +112,10 @@ gp.finalize()
 | `pr_summary_file(name, comm)` | Write MPI-aggregated summary to a file |
 
 ### Options
+
+| Function | Description |
+|---|---|
+| `setoption(option)` | Set a GPTL option (must be called before `initialize()`) |
 
 Options must be set before calling `initialize()`.
 
