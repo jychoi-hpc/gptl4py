@@ -1,4 +1,4 @@
-# gptl4py
+# GPTL4py
 
 Python bindings for the [General Purpose Timing Library (GPTL)](https://jmrosinski.github.io/GPTL/).
 
