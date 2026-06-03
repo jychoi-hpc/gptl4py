@@ -41,6 +41,24 @@ def bootstrap_gptl():
 
         if not os.path.exists(os.path.join(src_dir, "configure")):
             run(["autoreconf", "-i"])
+
+        # GPTL 8.1.1 bug: --disable-fortran skips the AM_CONDITIONAL for
+        # HAVE_FORT_OPENMP, causing autoconf to error "conditional was never defined".
+        # Patch: pre-initialize the variable to disabled before the check fires.
+        configure_path = os.path.join(src_dir, "configure")
+        with open(configure_path) as f:
+            configure_text = f.read()
+        patched = configure_text.replace(
+            'if test -z "${HAVE_FORT_OPENMP_TRUE}" && test -z "${HAVE_FORT_OPENMP_FALSE}"; then',
+            ': ${HAVE_FORT_OPENMP_TRUE=\'#\'}; : ${HAVE_FORT_OPENMP_FALSE=\'\'}\n'
+            'if test -z "${HAVE_FORT_OPENMP_TRUE}" && test -z "${HAVE_FORT_OPENMP_FALSE}"; then',
+        )
+        if patched == configure_text:
+            print("Warning: HAVE_FORT_OPENMP patch target not found in configure script; skipping patch.")
+        else:
+            with open(configure_path, "w") as f:
+                f.write(patched)
+
         run(["./configure", f"--prefix={GPTL_INSTALL_DIR}", "--enable-static", "--disable-shared", "--with-pic", "--disable-fortran"])
         run(["make", "-j4"])
         run(["make", "install"])
