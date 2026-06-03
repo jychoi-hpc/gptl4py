@@ -34,7 +34,7 @@ def bootstrap_gptl():
         if not os.path.exists(os.path.join(src_dir, "configure")):
             subprocess.run(["autoreconf", "-i"], cwd=src_dir, check=True)
         subprocess.run(
-            ["./configure", f"--prefix={GPTL_INSTALL_DIR}", "--enable-static", "--disable-shared"],
+            ["./configure", f"--prefix={GPTL_INSTALL_DIR}", "--enable-static", "--disable-shared", "--with-pic", "--disable-fortran"],
             cwd=src_dir, check=True,
         )
         subprocess.run(["make", "-j4"], cwd=src_dir, check=True)
